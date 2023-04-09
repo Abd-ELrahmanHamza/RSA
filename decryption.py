@@ -12,8 +12,11 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 class Decrypt:
     def __init__(self):
         self.rsa = RSA()
+        self.senderPublicKey = 0
+        self.myPublicKey = self.rsa.get_public_key()
         self.messages = []
-        self.myServer = Server(callback=self.start_decrypt)
+        self.myServer = Server(self.start_decrypt, self.privateKeyCallback,
+                               str(self.myPublicKey[0]) + "-" + str(self.myPublicKey[1]))
         print("[STARTING] server is starting...")
         self.myServer.start()
 
@@ -22,13 +25,15 @@ class Decrypt:
         if message == DISCONNECT_MESSAGE:
             self.messages = [int(message) for message in self.messages]
             decrypted_messages_private = self.decrypt(self.messages, self.rsa.D, self.rsa.N)
-            decrypted_messages_public = self.decrypt(decrypted_messages_private, self.rsa.E, self.rsa.N)
+            decrypted_messages_public = self.decrypt(
+                decrypted_messages_private, self.senderPublicKey[0], self.senderPublicKey[1])
             decoded_messages = self.decode(decrypted_messages_public)
             original_message = self.concatenate_list(decoded_messages)
             print("decrypted_messages_private = ", decrypted_messages_private)
             print("decrypted_messages_public = ", decrypted_messages_public)
             print("decoded_messages = ", decoded_messages)
             print("original_message = ", original_message)
+            self.messages.clear()
         else:
             self.messages.append(message)
 
@@ -54,11 +59,8 @@ class Decrypt:
                     character = ' '
                 else:
                     character = chr(character + ord('a') - 10)
-                print(character)
-                print(message % 37)
                 string_message = string_message + character
                 message = int(message / 37)
-            print("string_message = ", string_message)
             decoded_messages.append(string_message)
         return decoded_messages
 
@@ -74,6 +76,10 @@ class Decrypt:
         trailing whitespace removed and the order of the characters reversed.
         """
         return ("".join(decoded_messages)).rstrip()[::-1]
+
+    def privateKeyCallback(self, senderPublicKey):
+        self.senderPublicKey = [int(strPub) for strPub in senderPublicKey.split("-")]
+        print("self.senderPublicKey", self.senderPublicKey)
 
 
 decryption = Decrypt()

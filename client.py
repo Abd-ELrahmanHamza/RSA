@@ -26,4 +26,6 @@ class Client:
         send_length += b' ' * (HEADER - len(send_length))
         self.client.send(send_length)
         self.client.send(message)
-        print(self.client.recv(2048).decode(FORMAT))
+        response_message = self.client.recv(2048).decode(FORMAT)
+        print(response_message)
+        return response_message

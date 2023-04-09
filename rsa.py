@@ -4,12 +4,19 @@ import math
 
 class RSA:
     def __init__(self):
-        self.P = 139273  # sympy.randprime(10000, 1000000)  # 139273
-        self.Q = 139291  # sympy.nextprime(self.P)  # 139291
-        self.E = 11
-        self.D = 7054253411
+        print("Here")
+        self.P = sympy.randprime(10000, 100000)  # 139273
+        self.Q = sympy.nextprime(self.P)  # 139291
+        self.E = 1  # 11
+        self.D = 1  # 7054253411
         self.N = self.P * self.Q
         self.PHIN = (self.P - 1) * (self.Q - 1)
+        self.generate_public_key()
+        self.generate_private_key()
+        print(self.P, self.Q, self.D, self.E, self.PHIN, self.N)
+
+    def get_public_key(self):
+        return (self.E, self.N)
 
     def generate_public_key(self):
         for i in range(2, self.PHIN):
@@ -17,8 +24,8 @@ class RSA:
                 self.E = i
                 break
 
-    def generate_public_key(self):
-        pass
+    def generate_private_key(self):
+        self.D = pow(self.E, -1, self.PHIN)
 
     def fast_power(self, base, exponent, modulus):
         result = 1

@@ -9,8 +9,11 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
+
 class Server:
-    def __init__(self, callback):
+    def __init__(self, callback, privateKeyCallback, public_key):
+        self.public_key = public_key
+        self.privateKeyCallback = privateKeyCallback
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(ADDR)
         self.callback = callback
@@ -26,6 +29,22 @@ class Server:
         the IP address and the port number of the client
         """
         print(f"[NEW CONNECTION] {addr} connected.")
+        print(f"[SENDING] PUBLIC KEY.")
+
+        connected = True
+        while connected:
+            msg_length = conn.recv(HEADER).decode(FORMAT)
+            if msg_length:
+                msg_length = int(msg_length)
+                msg = conn.recv(msg_length).decode(FORMAT)
+                if msg == DISCONNECT_MESSAGE:
+                    connected = False
+                    print(f"[{addr}] {msg}")
+                    conn.send("Msg received".encode(FORMAT))
+                else:
+                    print(f"[{addr}] {msg}")
+                    self.privateKeyCallback(msg)
+                    conn.send(self.public_key.encode(FORMAT))
         connected = True
         while connected:
             msg_length = conn.recv(HEADER).decode(FORMAT)
