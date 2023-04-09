@@ -1,17 +1,8 @@
 from client import Client
 from rsa import RSA
-import sympy
-import math
 
 # These are variables that are used to configure the socket connection.
 DISCONNECT_MESSAGE = "!DISCONNECT"
-
-
-# for i in range(2,PHIN):
-#     if math.gcd(i, PHIN) == 1:
-#         E = i
-#         break
-# print(P, Q, E, N, PHIN, D)
 
 
 class Encrypt:
@@ -22,12 +13,14 @@ class Encrypt:
     def start_encrypt(self, message):
         # Note the string is reversed
         string_list = self.splitString(message[::-1])
-        print(string_list)
         encoded_list = self.encode(string_list)
+        encrypted_list_private = self.encrypt(encoded_list, self.rsa.D, self.rsa.N)
+        encrypted_list_public = self.encrypt(encrypted_list_private, self.rsa.E, self.rsa.N)
+        print(string_list)
         print(encoded_list)
-        encrypted_list = self.encrypt(encoded_list=encoded_list)
-        print(encrypted_list)
-        self.sendList(encrypted_list)
+        print(encrypted_list_private)
+        print(encrypted_list_public)
+        self.sendList(encrypted_list_public)
 
     def splitString(self, str):
         """
@@ -57,8 +50,8 @@ class Encrypt:
             encoded_list.append(summation)
         return encoded_list
 
-    def encrypt(self, encoded_list):
-        encrypted_list = [self.rsa.RSA(message, self.rsa.E, self.rsa.N) for message in encoded_list]
+    def encrypt(self, encoded_list, exponent, N):
+        encrypted_list = [self.rsa.RSA(message, exponent, N) for message in encoded_list]
         return encrypted_list
 
     def sendMessage(self, message):
