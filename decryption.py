@@ -60,12 +60,44 @@ class Server:
 
 class Decrypt:
     def __init__(self):
+        self.messages = []
         self.myServer = Server(callback=self.decrypt)
         print("[STARTING] server is starting...")
         self.myServer.start()
 
-    def decrypt(self,message):
+    def decrypt(self, message):
         print(message)
+        if message == DISCONNECT_MESSAGE:
+            self.messages = [int(message) for message in self.messages]
+            decoded_messages = self.decode()
+            original_message = self.concatenate_list(decoded_messages)
+            print("decoded_messages = ", decoded_messages)
+            print("original_message = ", original_message)
+        else:
+            self.messages.append(message)
+
+    def decode(self):
+        decoded_messages = []
+        for message in self.messages:
+            string_message = ""
+            while message:
+                character = message % 37
+                if character < 10:
+                    character = chr(character+ord('0'))
+                elif character == 36:
+                    character = ' '
+                else:
+                    character = chr(character+ord('a')-10)
+                print(character)
+                print(message % 37)
+                string_message = string_message + character
+                message = int(message/37)
+            print("string_message = ", string_message)
+            decoded_messages.append(string_message)
+        return decoded_messages
+
+    def concatenate_list(self, decoded_messages):
+        return ("".join(decoded_messages)).rstrip()[::-1]
 
 
 decryption = Decrypt()
