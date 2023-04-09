@@ -77,6 +77,12 @@ class Decrypt:
             self.messages.append(message)
 
     def decode(self):
+        """
+        The function decodes a list of messages using a specific algorithm and returns the decoded messages
+        as a list of strings.
+        :return: a list of decoded messages, where each message is a string obtained by decoding the
+        corresponding message in the input list using a specific algorithm.
+        """
         decoded_messages = []
         for message in self.messages:
             string_message = ""
@@ -97,6 +103,16 @@ class Decrypt:
         return decoded_messages
 
     def concatenate_list(self, decoded_messages):
+        """
+        This function concatenates a list of decoded messages, removes any trailing whitespace, and returns
+        the resulting string in reverse order.
+
+        :param decoded_messages: decoded_messages is a list of strings that represent decoded messages. The
+        function concatenates all the strings in the list, removes any trailing whitespace, and returns the
+        resulting string in reverse order
+        :return: a concatenated string of all the elements in the input list `decoded_messages`, with any
+        trailing whitespace removed and the order of the characters reversed.
+        """
         return ("".join(decoded_messages)).rstrip()[::-1]
 
 
