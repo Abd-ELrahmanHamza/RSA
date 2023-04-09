@@ -1,15 +1,10 @@
 from client import Client
+from rsa import RSA
 import sympy
 import math
 
 # These are variables that are used to configure the socket connection.
 DISCONNECT_MESSAGE = "!DISCONNECT"
-P = 139273  # sympy.randprime(10000, 1000000)
-Q = 139291  # sympy.nextprime(P)
-E = 11
-D = 7054253411
-N = P * Q
-PHIN = (P - 1) * (Q - 1)
 
 
 # for i in range(2,PHIN):
@@ -17,13 +12,12 @@ PHIN = (P - 1) * (Q - 1)
 #         E = i
 #         break
 # print(P, Q, E, N, PHIN, D)
-#
-# exit(0)
 
 
 class Encrypt:
     def __init__(self):
         self.myClient = Client()
+        self.rsa = RSA()
 
     def start_encrypt(self, message):
         # Note the string is reversed
@@ -63,20 +57,8 @@ class Encrypt:
             encoded_list.append(summation)
         return encoded_list
 
-    def fast_power(self, base, exponent, modulus):
-        result = 1
-        while exponent > 0:
-            if exponent % 2 == 1:
-                result = (result * base) % modulus
-            base = (base * base) % modulus
-            exponent //= 2
-        return result
-
-    def RSA(self, message):
-        return self.fast_power(message, E, N)
-
     def encrypt(self, encoded_list):
-        encrypted_list = [self.RSA(message=message) for message in encoded_list]
+        encrypted_list = [self.rsa.RSA(message, self.rsa.E, self.rsa.N) for message in encoded_list]
         return encrypted_list
 
     def sendMessage(self, message):

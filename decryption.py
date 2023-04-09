@@ -1,15 +1,9 @@
 from server import Server
+from rsa import RSA
 import sympy
 
 # These are variables used to configure the server.
 DISCONNECT_MESSAGE = "!DISCONNECT"
-
-P = 139273  # sympy.randprime(10000, 1000000)
-Q = 139291  # sympy.nextprime(P)
-E = 11
-D = 7054253411
-N = P * Q
-PHIN = (P - 1) * (Q - 1)
 
 
 # This is a Python class that creates a server that listens for incoming connections and handles each
@@ -18,6 +12,7 @@ PHIN = (P - 1) * (Q - 1)
 
 class Decrypt:
     def __init__(self):
+        self.rsa = RSA()
         self.messages = []
         self.myServer = Server(callback=self.start_decrypt)
         print("[STARTING] server is starting...")
@@ -36,20 +31,8 @@ class Decrypt:
         else:
             self.messages.append(message)
 
-    def fast_power(self, base, exponent, modulus):
-        result = 1
-        while exponent > 0:
-            if exponent % 2 == 1:
-                result = (result * base) % modulus
-            base = (base * base) % modulus
-            exponent //= 2
-        return result
-
-    def RSA(self, message):
-        return self.fast_power(message, D, N)
-
     def decrypt(self):
-        decrypted_list = [self.RSA(message=message)
+        decrypted_list = [self.rsa.RSA(message, self.rsa.D, self.rsa.N)
                           for message in self.messages]
         return decrypted_list
 
