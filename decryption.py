@@ -13,9 +13,10 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 # This is a Python class that creates a server that listens for incoming connections and handles each
 # client connection in a separate thread.
 class Server:
-    def __init__(self):
+    def __init__(self, callback):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(ADDR)
+        self.callback = callback
 
     def handle_client(self, conn, addr):
         """
@@ -38,6 +39,7 @@ class Server:
                     connected = False
 
                 print(f"[{addr}] {msg}")
+                self.callback(msg)
                 conn.send("Msg received".encode(FORMAT))
         conn.close()
 
@@ -56,6 +58,14 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
 
-myServer = Server()
-print("[STARTING] server is starting...")
-myServer.start()
+class Decrypt:
+    def __init__(self):
+        self.myServer = Server(callback=self.decrypt)
+        print("[STARTING] server is starting...")
+        self.myServer.start()
+
+    def decrypt(self,message):
+        print(message)
+
+
+decryption = Decrypt()

@@ -36,14 +36,6 @@ class Encrypt:
     def __init__(self):
         self.myClient = Client()
 
-    def sendMessage(self, message):
-        """
-        This function sends a message and a disconnect message through a client connection.
-
-        :param message: The message that the client wants to send to the server
-        """
-        self.myClient.send(message)
-
     def encrypt(self, message):
         # Note the string is reversed
         string_list = self.splitString(message[::-1])
@@ -81,7 +73,22 @@ class Encrypt:
             encoded_list.append(summation)
         return encoded_list
 
+    def sendMessage(self, message):
+        """
+        This function sends a message using a client object.
+
+        :param message: The message parameter is a string that represents the message that the client wants
+        to send. It could be any text-based message that the client wants to transmit to the server or
+        another client
+        """
+        self.myClient.send(message)
+
     def sendList(self, encrypted_list):
+        """
+        This function sends each message in an encrypted list and then disconnects the client.
+
+        :param encrypted_list: A list of encrypted messages that are to be sent by the client
+        """
         for message in encrypted_list:
             self.sendMessage(str(message))
         self.myClient.send(DISCONNECT_MESSAGE)
