@@ -42,7 +42,6 @@ class Server:
                 else:
                     print(f"[{addr}] {msg}")
                     if len(self.clients_public_keys) != 0:
-                        print("==========sending public key")
                         message = "PUBLIC_KEY".encode(FORMAT)
                         msg_length = len(message)
                         send_length = str(msg_length).encode(FORMAT)

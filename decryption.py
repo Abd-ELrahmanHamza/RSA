@@ -14,8 +14,6 @@ class Decrypt:
         self.senderPublicKey = senderPublicKey
 
     def start_decrypt(self, message):
-        print("received", message)
-        print("separator")
         res = []
         if message == DISCONNECT_MESSAGE:
             self.messages = [int(message) for message in self.messages]
@@ -24,13 +22,13 @@ class Decrypt:
                 decrypted_messages_private, self.senderPublicKey[0], self.senderPublicKey[1])
             decoded_messages = self.decode(decrypted_messages_public)
             original_message = self.concatenate_list(decoded_messages)
-            print("decrypted_messages_private = ", decrypted_messages_private)
-            print("decrypted_messages_public = ", decrypted_messages_public)
-            print("decoded_messages = ", decoded_messages)
-            print("original_message = ", original_message)
-            res = self.messages.copy()
+            # print("decrypted_messages_private = ", decrypted_messages_private)
+            # print("decrypted_messages_public = ", decrypted_messages_public)
+            # print("decoded_messages = ", decoded_messages)
+            # print("original_message = ", original_message)
+            # res = self.messages.copy()
             self.messages.clear()
-            return res
+            return original_message
         else:
             self.messages.append(message)
 
@@ -56,4 +54,4 @@ class Decrypt:
         return decoded_messages
 
     def concatenate_list(self, decoded_messages):
-        return ("".join(decoded_messages))[::-1]
+        return ("".join(decoded_messages)).rstrip()[::-1]

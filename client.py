@@ -30,9 +30,7 @@ class Client:
         if public_key_message == "PUBLIC_KEY":
             self.senderPublicKey = self.receive()
             self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
-            print(self.senderPublicKey)
-        # else:
-        #     print("No public key received")
+
         self.send(DISCONNECT_MESSAGE)
 
         self.encrypt.set_sender_public_key(self.senderPublicKey)
@@ -48,16 +46,15 @@ class Client:
         while True:
             message = self.receive()
             if message == "PUBLIC_KEY":
-                # print("PUBLIC_KEY received")
                 self.senderPublicKey = self.receive()
                 self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
                 self.encrypt.set_sender_public_key(self.senderPublicKey)
                 self.decrypt.set_sender_public_key(self.senderPublicKey)
-                print(self.senderPublicKey)
             else:
                 if len(message) > 0 and message != "Msg received":
                     decrypted_message = self.decrypt.start_decrypt(message)
-                    print(decrypted_message)
+                    if decrypted_message is not None:
+                        print(decrypted_message)
 
     def client_send(self):
         while True:
@@ -75,12 +72,9 @@ class Client:
     def receive(self):
         response_message = ""
         msg_length = self.client.recv(HEADER).decode(FORMAT)
-        print(msg_length, "msg_length")
         if msg_length:
             msg_length = int(msg_length)
             response_message = self.client.recv(msg_length).decode(FORMAT)
-            print(response_message, "response_message")
-        print("out")
         return response_message
 
     def sendList(self, encrypted_list):
