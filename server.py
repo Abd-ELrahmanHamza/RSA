@@ -1,5 +1,6 @@
 import socket
 import threading
+from encryption import Encrypt
 
 # These are variables used to configure the server.
 HEADER = 64
@@ -11,28 +12,24 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 
 
 class Server:
-    def __init__(self, callback, privateKeyCallback, public_key):
-        self.public_key = public_key
-        self.privateKeyCallback = privateKeyCallback
+    def __init__(self):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(ADDR)
-        self.callback = callback
         self.aliases = []
         self.clients = []
+        self.clients_public_keys = []
+
+    def broadcast(self, msg, client):
+        message = msg.encode(FORMAT)
+        msg_length = len(message)
+        send_length = str(msg_length).encode(FORMAT)
+        send_length += b' ' * (HEADER - len(send_length))
+        client.send(send_length)
+        client.send(message)
 
     def handle_client(self, conn, addr):
-        """
-        This function handles a client connection by receiving and sending messages until the client
-        disconnects.
-
-        :param conn: conn is a socket object representing the connection between the server and the client.
-        It is used to send and receive data between the two endpoints
-        :param addr: The address of the client that has connected to the server. It is a tuple containing
-        the IP address and the port number of the client
-        """
         print(f"[NEW CONNECTION] {addr} connected.")
         print(f"[SENDING] PUBLIC KEY.")
-
         connected = True
         while connected:
             msg_length = conn.recv(HEADER).decode(FORMAT)
@@ -42,35 +39,70 @@ class Server:
                 if msg == DISCONNECT_MESSAGE:
                     connected = False
                     print(f"[{addr}] {msg}")
-                    conn.send("Msg received".encode(FORMAT))
                 else:
                     print(f"[{addr}] {msg}")
-                    self.privateKeyCallback(msg)
-                    conn.send(self.public_key.encode(FORMAT))
+                    if len(self.clients_public_keys) != 0:
+                        print("==========sending public key")
+                        message = "PUBLIC_KEY".encode(FORMAT)
+                        msg_length = len(message)
+                        send_length = str(msg_length).encode(FORMAT)
+                        send_length += b' ' * (HEADER - len(send_length))
+                        conn.send(send_length)
+                        conn.send(message)
+
+                        message = self.clients_public_keys[0].encode(FORMAT)
+                        msg_length = len(message)
+                        send_length = str(msg_length).encode(FORMAT)
+                        send_length += b' ' * (HEADER - len(send_length))
+                        conn.send(send_length)
+                        conn.send(message)
+
+                        message = "PUBLIC_KEY".encode(FORMAT)
+                        msg_length = len(message)
+                        send_length = str(msg_length).encode(FORMAT)
+                        send_length += b' ' * (HEADER - len(send_length))
+                        self.clients[0].send(send_length)
+                        self.clients[0].send(message)
+
+                        message = msg.encode(FORMAT)
+                        msg_length = len(message)
+                        send_length = str(msg_length).encode(FORMAT)
+                        send_length += b' ' * (HEADER - len(send_length))
+                        self.clients[0].send(send_length)
+                        self.clients[0].send(message)
+                    else:
+                        print("xxxxxx N0 sending public key")
+                        message = "NO_PUBLIC_KEY".encode(FORMAT)
+                        msg_length = len(message)
+                        send_length = str(msg_length).encode(FORMAT)
+                        send_length += b' ' * (HEADER - len(send_length))
+                        conn.send(send_length)
+                        conn.send(message)
+                    self.clients_public_keys.append(msg)
         connected = True
         while connected:
             msg_length = conn.recv(HEADER).decode(FORMAT)
             if msg_length:
                 msg_length = int(msg_length)
                 msg = conn.recv(msg_length).decode(FORMAT)
-                # if msg == DISCONNECT_MESSAGE:
-                #     connected = False
-
                 print(f"[{addr}] {msg}")
-                self.callback(msg)
-                conn.send("Msg received".encode(FORMAT))
+                self.broadcast(msg, self.clients[1 - self.clients.index(conn)])
         conn.close()
 
     def start(self):
-        """
-        This function starts a server that listens for incoming connections and creates a new thread to
-        handle each client connection.
-        """
         self.server.listen()
         print(f"[LISTENING] Server is listening on {SERVER}")
         while True:
             conn, addr = self.server.accept()
+            self.clients.append(conn)
             thread = threading.Thread(
                 target=self.handle_client, args=(conn, addr))
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
+
+
+# This is a Python class that creates a server that listens for incoming connections and handles each
+# client connection in a separate thread.
+myServer = Server()
+print("[STARTING] server is starting...")
+myServer.start()

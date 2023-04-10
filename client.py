@@ -2,6 +2,7 @@ from rsa import RSA
 import socket
 import threading
 from encryption import Encrypt
+from decryption import Decrypt
 
 # The Client class establishes a socket connection and sends/receives messages to/from a client.
 HEADER = 64
@@ -20,15 +21,23 @@ class Client:
         self.rsa = RSA()
         self.myPublicKey = self.rsa.get_public_key()
         self.senderPublicKey = 0
+        self.encrypt = Encrypt(self.senderPublicKey, self.rsa)
+        self.decrypt = Decrypt(self.senderPublicKey, self.rsa)
 
         # Send my public key
         self.send(str(self.myPublicKey[0]) + "-" + str(self.myPublicKey[1]))
-        self.senderPublicKey = self.receive()
-        self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
-        # print("senderPublicKey = ", self.senderPublicKey)
+        public_key_message = self.receive()
+        if public_key_message == "PUBLIC_KEY":
+            self.senderPublicKey = self.receive()
+            self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
+            print(self.senderPublicKey)
+        # else:
+        #     print("No public key received")
         self.send(DISCONNECT_MESSAGE)
 
-        self.encrypt = Encrypt(self.senderPublicKey, self.rsa)
+        self.encrypt.set_sender_public_key(self.senderPublicKey)
+        self.decrypt.set_sender_public_key(self.senderPublicKey)
+
         receive_thread = threading.Thread(target=self.client_receive)
         receive_thread.start()
 
@@ -37,17 +46,18 @@ class Client:
 
     def client_receive(self):
         while True:
-            try:
-                message = self.receive()
-                if message == "alias?":
-                    client.send(self.alias.encode('utf-8'))
-                else:
-                    if len(message) > 0 and message != "Msg received":
-                        print(message)
-            except:
-                print('Error!')
-                self.client.close()
-                break
+            message = self.receive()
+            if message == "PUBLIC_KEY":
+                # print("PUBLIC_KEY received")
+                self.senderPublicKey = self.receive()
+                self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
+                self.encrypt.set_sender_public_key(self.senderPublicKey)
+                self.decrypt.set_sender_public_key(self.senderPublicKey)
+                print(self.senderPublicKey)
+            else:
+                if len(message) > 0 and message != "Msg received":
+                    decrypted_message = self.decrypt.start_decrypt(message)
+                    print(decrypted_message)
 
     def client_send(self):
         while True:
@@ -63,7 +73,14 @@ class Client:
         self.client.send(message)
 
     def receive(self):
-        response_message = self.client.recv(2048).decode(FORMAT)
+        response_message = ""
+        msg_length = self.client.recv(HEADER).decode(FORMAT)
+        print(msg_length, "msg_length")
+        if msg_length:
+            msg_length = int(msg_length)
+            response_message = self.client.recv(msg_length).decode(FORMAT)
+            print(response_message, "response_message")
+        print("out")
         return response_message
 
     def sendList(self, encrypted_list):

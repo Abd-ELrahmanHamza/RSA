@@ -3,6 +3,9 @@ class Encrypt:
         self.senderPublicKey = senderPublicKey
         self.rsa = rsa
 
+    def set_sender_public_key(self, senderPublicKey):
+        self.senderPublicKey = senderPublicKey
+
     def start_encrypt(self, message):
         # Note the string is reversed
         string_list = self.splitString(message[::-1])
