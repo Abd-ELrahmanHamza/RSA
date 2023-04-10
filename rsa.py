@@ -5,7 +5,7 @@ import math
 class RSA:
     def __init__(self):
         print("Here")
-        self.P = sympy.randprime(10000, 100000)  # 139273
+        self.P = sympy.randprime(100000, 1000000)  # 139273
         self.Q = sympy.nextprime(self.P)  # 139291
         self.E = 1  # 11
         self.D = 1  # 7054253411

@@ -17,6 +17,8 @@ class Server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(ADDR)
         self.callback = callback
+        self.aliases = []
+        self.clients = []
 
     def handle_client(self, conn, addr):
         """
@@ -51,8 +53,8 @@ class Server:
             if msg_length:
                 msg_length = int(msg_length)
                 msg = conn.recv(msg_length).decode(FORMAT)
-                if msg == DISCONNECT_MESSAGE:
-                    connected = False
+                # if msg == DISCONNECT_MESSAGE:
+                #     connected = False
 
                 print(f"[{addr}] {msg}")
                 self.callback(msg)

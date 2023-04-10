@@ -21,12 +21,14 @@ class Decrypt:
         self.myServer.start()
 
     def start_decrypt(self, message):
-        print(message)
+        print("recieved",message)
         if message == DISCONNECT_MESSAGE:
             self.messages = [int(message) for message in self.messages]
+            print("start decrypt")
             decrypted_messages_private = self.decrypt(self.messages, self.rsa.D, self.rsa.N)
             decrypted_messages_public = self.decrypt(
                 decrypted_messages_private, self.senderPublicKey[0], self.senderPublicKey[1])
+            print("decrypted")
             decoded_messages = self.decode(decrypted_messages_public)
             original_message = self.concatenate_list(decoded_messages)
             print("decrypted_messages_private = ", decrypted_messages_private)

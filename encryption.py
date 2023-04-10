@@ -1,24 +1,9 @@
-from client import Client
-from rsa import RSA
-
-# These are variables that are used to configure the socket connection.
-DISCONNECT_MESSAGE = "!DISCONNECT"
-
-
 class Encrypt:
-    def __init__(self):
-        self.myClient = Client()
-        self.rsa = RSA()
-        self.myPublicKey = self.rsa.get_public_key()
-        self.senderPublicKey = 0
+    def __init__(self, senderPublicKey, rsa):
+        self.senderPublicKey = senderPublicKey
+        self.rsa = rsa
 
     def start_encrypt(self, message):
-        # Send my public key
-        self.senderPublicKey = self.sendMessage(str(self.myPublicKey[0]) + "-" + str(self.myPublicKey[1]))
-        self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
-        print("senderPublicKey = ", self.senderPublicKey)
-        self.myClient.send(DISCONNECT_MESSAGE)
-
         # Note the string is reversed
         string_list = self.splitString(message[::-1])
         encoded_list = self.encode(string_list)
@@ -26,11 +11,11 @@ class Encrypt:
             encoded_list, self.rsa.D, self.rsa.N)
         encrypted_list_public = self.encrypt(
             encrypted_list_private, self.senderPublicKey[0], self.senderPublicKey[1])
-        print(string_list)
-        print(encoded_list)
-        print(encrypted_list_private)
-        print(encrypted_list_public)
-        self.sendList(encrypted_list_public)
+        # print(string_list)
+        # print(encoded_list)
+        # print(encrypted_list_private)
+        # print(encrypted_list_public)
+        return encrypted_list_public
 
     def splitString(self, str):
         """
@@ -64,28 +49,3 @@ class Encrypt:
         encrypted_list = [self.rsa.RSA(message, exponent, N)
                           for message in encoded_list]
         return encrypted_list
-
-    def sendMessage(self, message):
-        """
-        This function sends a message using a client object.
-
-        :param message: The message parameter is a string that represents the message that the client wants
-        to send. It could be any text-based message that the client wants to transmit to the server or
-        another client
-        """
-        return self.myClient.send(message)
-
-    def sendList(self, encrypted_list):
-        """
-        This function sends each message in an encrypted list and then disconnects the client.
-
-        :param encrypted_list: A list of encrypted messages that are to be sent by the client
-        """
-        for message in encrypted_list:
-            self.sendMessage(str(message))
-        self.myClient.send(DISCONNECT_MESSAGE)
-
-
-encryption = Encrypt()
-encryption.start_encrypt("hloaaaaaaaa 23190821")
-# encryption.sendMessage("Hello Abdelrahman! world world")
