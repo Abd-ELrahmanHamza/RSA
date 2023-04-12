@@ -1,6 +1,7 @@
 from rsa import RSA
 import sympy
 import time
+import math
 
 import matplotlib.pyplot as plt
 
@@ -31,20 +32,20 @@ def attack(start_prime, end_prime):
 
     print("private calculated key : D =", D)
     print("Actual private key =", rsa.get_private_key())
-    return D, end_time - start_time
+    return D, N, end_time - start_time
 
 
 if __name__ == "__main__":
     execution_time_list = []
     number_of_bits_list = []
-    number_of_bits = 8
+    number_of_bits = 4
     while number_of_bits <= 64:
-        number_of_bits_list.append(number_of_bits)
         start_prime = int('1' + '0'*(number_of_bits-1), 2)
         end_prime = int('1' + '1'*(number_of_bits-1), 2)
-        print("Number of bits =", number_of_bits)
-        D, execution_time = attack(start_prime, end_prime)
+        D, N, execution_time = attack(start_prime, end_prime)
+        number_of_bits_list.append(int(math.log2(N)))
         execution_time_list.append(execution_time)
+        print("Number of bits =", int(math.log2(N)))
         print("Time to attack in milliseconds =", (execution_time)*1000, "ms")
         print()
         number_of_bits *= 2
