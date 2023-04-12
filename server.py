@@ -20,12 +20,7 @@ class Server:
         self.clients_public_keys = []
 
     def broadcast(self, msg, client):
-        message = msg.encode(FORMAT)
-        msg_length = len(message)
-        send_length = str(msg_length).encode(FORMAT)
-        send_length += b' ' * (HEADER - len(send_length))
-        client.send(send_length)
-        client.send(message)
+        self.send(msg, client)
 
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected.")
@@ -42,41 +37,14 @@ class Server:
                 else:
                     print(f"[{addr}] {msg}")
                     if len(self.clients_public_keys) != 0:
-                        message = "PUBLIC_KEY".encode(FORMAT)
-                        msg_length = len(message)
-                        send_length = str(msg_length).encode(FORMAT)
-                        send_length += b' ' * (HEADER - len(send_length))
-                        conn.send(send_length)
-                        conn.send(message)
+                        self.send("PUBLIC_KEY", conn)
+                        self.send(self.clients_public_keys[0], conn)
 
-                        message = self.clients_public_keys[0].encode(FORMAT)
-                        msg_length = len(message)
-                        send_length = str(msg_length).encode(FORMAT)
-                        send_length += b' ' * (HEADER - len(send_length))
-                        conn.send(send_length)
-                        conn.send(message)
-
-                        message = "PUBLIC_KEY".encode(FORMAT)
-                        msg_length = len(message)
-                        send_length = str(msg_length).encode(FORMAT)
-                        send_length += b' ' * (HEADER - len(send_length))
-                        self.clients[0].send(send_length)
-                        self.clients[0].send(message)
-
-                        message = msg.encode(FORMAT)
-                        msg_length = len(message)
-                        send_length = str(msg_length).encode(FORMAT)
-                        send_length += b' ' * (HEADER - len(send_length))
-                        self.clients[0].send(send_length)
-                        self.clients[0].send(message)
+                        self.send("PUBLIC_KEY", self.clients[0])
+                        self.send(msg, self.clients[0])
                     else:
                         print("xxxxxx N0 sending public key")
-                        message = "NO_PUBLIC_KEY".encode(FORMAT)
-                        msg_length = len(message)
-                        send_length = str(msg_length).encode(FORMAT)
-                        send_length += b' ' * (HEADER - len(send_length))
-                        conn.send(send_length)
-                        conn.send(message)
+                        self.send("NO_PUBLIC_KEY", conn)
                     self.clients_public_keys.append(msg)
         connected = True
         while connected:
@@ -98,6 +66,14 @@ class Server:
                 target=self.handle_client, args=(conn, addr))
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
+
+    def send(self, msg, client):
+        message = msg.encode(FORMAT)
+        msg_length = len(message)
+        send_length = str(msg_length).encode(FORMAT)
+        send_length += b' ' * (HEADER - len(send_length))
+        client.send(send_length)
+        client.send(message)
 
 
 # This is a Python class that creates a server that listens for incoming connections and handles each
