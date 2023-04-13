@@ -3,6 +3,7 @@ from rsa import RSA
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
 
+# The Decrypt class contains methods for decrypting and decoding messages using RSA encryption.
 class Decrypt:
     def __init__(self, senderPublicKey, rsa):
         self.rsa = rsa
@@ -16,10 +17,14 @@ class Decrypt:
         res = []
         if message == DISCONNECT_MESSAGE:
             self.messages = [int(message) for message in self.messages]
+            print("\n 1 ", self.messages)
             decrypted_messages_private = self.decrypt(self.messages, self.rsa.D, self.rsa.N)
-            decrypted_messages_public = self.decrypt(decrypted_messages_private, self.senderPublicKey[0], self.senderPublicKey[1])
-            decoded_messages = self.decode(decrypted_messages_public)
+            print("2 ", decrypted_messages_private)
+            # decrypted_messages_public = self.decrypt(decrypted_messages_private, self.senderPublicKey[0], self.senderPublicKey[1])
+            decoded_messages = self.decode(decrypted_messages_private)
+            print("4 ", decoded_messages)
             original_message = self.concatenate_list(decoded_messages)
+            print("5 ", original_message)
             self.messages.clear()
             return original_message
         else:

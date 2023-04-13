@@ -2,13 +2,15 @@ import sympy
 import math
 
 
+# The RSA class generates public and private keys, and provides methods for encrypting and decrypting
+# messages using the RSA algorithm.
 class RSA:
     def __init__(self, startPrime=100000, endPrime=1000000):
         self.P = 139273  # sympy.randprime(100000, 1000000)  # 139273
         self.Q = 139291  # sympy.nextprime(self.P)  # 139291
         self.E = 11  # 11
         self.D = 7054253411  # 7054253411
-        # self.generatePrimes(startPrime, endPrime)
+        self.generatePrimes(startPrime, endPrime)
         self.N = self.P * self.Q
         self.PHIN = (self.P - 1) * (self.Q - 1)
         self.generate_public_key()
@@ -28,7 +30,7 @@ class RSA:
         return self.D
 
     def generate_public_key(self):
-        for i in range(2, self.PHIN):
+        for i in range(self.PHIN, 2, -1):
             if math.gcd(i, self.PHIN) == 1:
                 self.E = i
                 break

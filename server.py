@@ -23,6 +23,15 @@ class Server:
         self.send(msg, client)
 
     def handle_client(self, conn, addr):
+        """
+        This function handles a client connection, sends and receives messages, and broadcasts messages
+        to other clients.
+
+        :param conn: conn is a socket object representing the connection between the server and the
+        client. It is used to send and receive data between the two endpoints
+        :param addr: The address of the client that has connected to the server. It is a tuple
+        containing the IP address and the port number of the client
+        """
         print(f"[NEW CONNECTION] {addr} connected.")
         print(f"[SENDING] PUBLIC KEY.")
         connected = True

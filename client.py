@@ -13,6 +13,8 @@ SERVER = "192.168.137.1"
 ADDR = (SERVER, PORT)
 
 
+# This is a Python class that sets up a client socket connection, sends and receives encrypted
+# messages using RSA encryption, and runs on separate threads for sending and receiving.
 class Client:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
