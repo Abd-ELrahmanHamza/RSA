@@ -34,7 +34,6 @@ def attack(start_prime, end_prime):
     print("Actual private key =", rsa.get_private_key())
     return D, N, end_time - start_time
 
-
 if __name__ == "__main__":
     execution_time_list = []
     number_of_bits_list = []

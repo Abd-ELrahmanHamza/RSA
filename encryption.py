@@ -10,17 +10,13 @@ class Encrypt:
 
     def start_encrypt(self, message):
         # Note the string is reversed
-        print("\n 5", message)
         string_list = self.splitString(message[::-1])
-        print("4", string_list)
         encoded_list = self.encode(string_list)
-        print("3", encoded_list)
         # encrypted_list_private = self.encrypt(
         #     encoded_list, self.rsa.D, self.rsa.N)
         # print("2", encrypted_list_private)
         encrypted_list_public = self.encrypt(
             encoded_list, self.senderPublicKey[0], self.senderPublicKey[1])
-        print("1", encrypted_list_public)
         return encrypted_list_public
 
     def splitString(self, str):
