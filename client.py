@@ -17,7 +17,6 @@ class Client:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect(ADDR)
-        self.alias = "New user"
         self.rsa = RSA()
         self.myPublicKey = self.rsa.get_public_key()
         self.senderPublicKey = 0
@@ -58,7 +57,7 @@ class Client:
 
     def client_send(self):
         while True:
-            encrypted_list = self.encrypt.start_encrypt(input("Enter Message:"))
+            encrypted_list = self.encrypt.start_encrypt(input(""))
             self.sendList(encrypted_list)
 
     def send(self, msg):

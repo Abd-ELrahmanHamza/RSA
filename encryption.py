@@ -14,10 +14,6 @@ class Encrypt:
             encoded_list, self.rsa.D, self.rsa.N)
         encrypted_list_public = self.encrypt(
             encrypted_list_private, self.senderPublicKey[0], self.senderPublicKey[1])
-        # print(string_list)
-        # print(encoded_list)
-        # print(encrypted_list_private)
-        # print(encrypted_list_public)
         return encrypted_list_public
 
     def splitString(self, str):
