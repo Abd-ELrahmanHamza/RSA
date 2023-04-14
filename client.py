@@ -30,7 +30,8 @@ class Client:
         public_key_message = self.receive()
         if public_key_message == "PUBLIC_KEY":
             self.senderPublicKey = self.receive()
-            self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
+            self.senderPublicKey = [int(strPub)
+                                    for strPub in self.senderPublicKey.split("-")]
 
         self.send(DISCONNECT_MESSAGE)
 
@@ -44,11 +45,15 @@ class Client:
         send_thread.start()
 
     def client_receive(self):
+        """
+        This function receives messages and decrypts them if they are not a public key.
+        """
         while True:
             message = self.receive()
             if message == "PUBLIC_KEY":
                 self.senderPublicKey = self.receive()
-                self.senderPublicKey = [int(strPub) for strPub in self.senderPublicKey.split("-")]
+                self.senderPublicKey = [
+                    int(strPub) for strPub in self.senderPublicKey.split("-")]
                 self.encrypt.set_sender_public_key(self.senderPublicKey)
                 self.decrypt.set_sender_public_key(self.senderPublicKey)
             else:
@@ -58,11 +63,20 @@ class Client:
                         print(decrypted_message)
 
     def client_send(self):
+        """
+        This function continuously encrypts user input and sends the encrypted data to a server.
+        """
         while True:
             encrypted_list = self.encrypt.start_encrypt(input(""))
             self.sendList(encrypted_list)
 
     def send(self, msg):
+        """
+        This function sends a message over a client socket connection by first encoding the message and
+        sending its length followed by the message itself.
+
+        :param msg: The message to be sent, which is a string
+        """
         message = msg.encode(FORMAT)
         msg_length = len(message)
         send_length = str(msg_length).encode(FORMAT)
@@ -71,6 +85,14 @@ class Client:
         self.client.send(message)
 
     def receive(self):
+        """
+        This function receives a message from a client by first receiving the length of the message and then
+        receiving the message itself.
+        :return: a response message received from a client. The message is received in two parts: first, the
+        length of the message is received and decoded using the specified format (HEADER), and then the
+        actual message is received and decoded using the same format (FORMAT). The function returns the
+        decoded message as a string.
+        """
         response_message = ""
         msg_length = self.client.recv(HEADER).decode(FORMAT)
         if msg_length:
@@ -79,6 +101,14 @@ class Client:
         return response_message
 
     def sendList(self, encrypted_list):
+        """
+        This function sends each message in an encrypted list and then disconnects.
+
+        :param encrypted_list: The parameter "encrypted_list" is a list of encrypted messages that the
+        function "sendList" is supposed to send. The function iterates through each message in the list and
+        sends it using the "send" method. Once all messages have been sent, the function sends a
+        "DISCONNECT_MESSAGE"
+        """
         for message in encrypted_list:
             self.send(str(message))
         self.send(DISCONNECT_MESSAGE)

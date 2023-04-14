@@ -20,6 +20,14 @@ class Server:
         self.clients_public_keys = []
 
     def broadcast(self, msg, client):
+        """
+        This function broadcasts a message to a specific client.
+
+        :param msg: The message that is being sent to the client(s) in the broadcast
+        :param client: The "client" parameter in this code refers to the specific client that the message is
+        being sent to. It is likely an object or identifier that represents the connection between the
+        server and the client
+        """
         self.send(msg, client)
 
     def handle_client(self, conn, addr):
@@ -66,6 +74,10 @@ class Server:
         conn.close()
 
     def start(self):
+        """
+        This function starts a server that listens for incoming connections and creates a new thread to
+        handle each client connection.
+        """
         self.server.listen()
         print(f"[LISTENING] Server is listening on {SERVER}")
         while True:
@@ -77,6 +89,14 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
     def send(self, msg, client):
+        """
+        This function sends a message to a client by encoding the message, determining its length, and
+        sending it along with the length to the client.
+
+        :param msg: The message to be sent to the client. It should be a string
+        :param client: The "client" parameter is a socket object representing the client connection that the
+        message will be sent to
+        """
         message = msg.encode(FORMAT)
         msg_length = len(message)
         send_length = str(msg_length).encode(FORMAT)
